@@ -1,4 +1,4 @@
-<#------------------------------------------------------------------------------------------#>
+﻿<#------------------------------------------------------------------------------------------#>
 # 変数の設定 / Variables Setting
 #   $NTNXIP     : クラスターIP
 #   $NTNXUser   : ユーザー名
@@ -17,7 +17,7 @@ $RepLocate  =   "C:\NTNX_Report"
 # Nutanixクラスターへ接続
 Add-PSSnapin NutanixCmdletsPSSnapin
 $secure = ConvertTo-SecureString $NTNXPwd -AsPlainText -Force
-Connect-NTNXCluster -Server $NTNXIP.ToString() -UserName $NTNXUser.ToString() -Password $secure -AcceptInvalidSSLCerts 
+Connect-NTNXCluster -Server $NTNXIP.ToString() -UserName $NTNXUser.ToString() -Password $secure -AcceptInvalidSSLCerts -Force
 
 # Create All VMs List included Nutanix Cluster
 $vms = @(get-ntnxvm) 
@@ -28,10 +28,10 @@ foreach ($vm in $vms){
         "VM Name" = $vm.vmName
         "Power ON/OFF" = $vm.powerstate
         "Node" = $vm.hostName
-        "IP Address" = $vm.ipAddresses
+        "IP Address" = $vm.ipAddresses -join " "
         "vCPU" = $vm.numVCpus
-        "RAM(GB)" = $vm.memoryCapacityInBytes
-        "DISK(GB)" = $vm.diskCapacityInBytes
+        "RAM(GB)" = $vm.memoryCapacityInBytes / 1GB
+        "DISK(GB)" = $vm.diskCapacityInBytes / 1GB
     }
     $Buffer = New-Object PSCustomObject -Property $VMArray
     $VMList += $Buffer
@@ -40,5 +40,5 @@ foreach ($vm in $vms){
 #Write-Output $Buffer
 #Write-Output $Report
 $OutputFileName = $RepLocate + "\VMList-" + (Get-Date).ToString("yyyyMMdd-HHmmss") +".csv"
-$Report | Export-Csv $OutputFileName -Encoding Default
+$VMList | Export-Csv $OutputFileName -Encoding Default -NoTypeInformation
 Disconnect-NTNXCluster -Servers $NTNXIP
