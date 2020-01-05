@@ -3,12 +3,22 @@
 #   $NTNXIP     : クラスターIP
 #   $NTNXUser   : ユーザー名
 #   $NTNXPwd    : パスワード
-#   $RepLocate  : 出力先の設定 "C:\<任意のディレクトリを入力>" ※作成済みであること
+#   $RepLocate  : 出力先の設定 "C:\<任意のディレクトリを入力>" ※存在しない場合は作成する。
 <#------------------------------------------------------------------------------------------#>
 $NTNXIP     =   "192.168.1.1"
 $NTNXUser   =   "admin"
 $NTNXPwd    =   "nutanix/4u"
 $RepLocate  =   "C:\NTNX_Report"
+
+<#------------------------------------------------------------------------------------------#>
+# レポート出力ディレクトリの確認 / 作成 : VM List Generator
+<#------------------------------------------------------------------------------------------#>
+if(Test-Path -Path $RepLocate){
+    Write-Host ("Log Directory: " + $RepLocate)
+} else {
+    $log_dir = New-Item -ItemType Directory -Path $RepLocate
+    Write-Host ("Create Log Directory: " + $log_dir.FullName)
+}
 
 <#------------------------------------------------------------------------------------------#>
 # VMリスト生成セクション : VM List Generator
